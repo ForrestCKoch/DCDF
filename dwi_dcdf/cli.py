@@ -2,29 +2,43 @@ import argparse
 import os
 from typing import Any, Optional
 
-from data import get_reference_cdf, save_reference, load_reference
 import numpy as np
+
+from data import get_reference_cdf, save_reference, load_reference
+from measure import get_func_dict, measure_subjects, print_measurements
 
 def main():
     parser = _build_parser()
     _validate_args(parser)
     args = parser.parse_args()
     
+    filter = _get_bounds_filter(args)
+
+    # Handle the various use cases for this program
     if args.build is not None:
         reference = get_reference_cdf(
             reference_list=args.build,
             numbins=args.bins,
             indv_mask_list=args.reference_masks,
             group_mask_filename=args.group_mask,
-            filter=_get_bounds_filter(args)
+            filter=filter
         )
         if args.output is not None:
             save_reference(reference,args.output)
     else:
         reference = load_reference(args.load)
-     
 
-    pass
+    if args.evaluate is not None:
+        results = measure_subjects(
+                subjects_list=args.evaluate,
+                reference=reference,
+                func_dict=get_func_dict(),
+                indv_mask_list=args.evaluation_masks,
+                group_mask_filename=args.group_mask,
+                filter=filter
+        )
+        print_measurements(results)
+
 
 def _build_parser() -> argparse.ArgumentParser:
     """
@@ -81,7 +95,7 @@ def _build_parser() -> argparse.ArgumentParser:
         type=float,
         action='store',
         default=None,
-        help='Lower bound for values when building reference'
+        help='enforce a lower bound on considered values [Note: This should be the same for both reference and evaluation calls]'
     )
     parser.add_argument(
         "-U",
@@ -89,7 +103,7 @@ def _build_parser() -> argparse.ArgumentParser:
         type=float,
         action='store',
         default=None,
-        help='Upper bound for values when building reference'
+        help='enforce an upper bound on considered values [Note: This should be the same for both reference and evaluation calls]'
     )
     parser.add_argument(
         "-B",
