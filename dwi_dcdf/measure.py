@@ -4,14 +4,42 @@ from data import get_subject_cdf, get_datapoints
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
+from scipy.stats.stats import CumfreqResult
 import nibabel as nib
 
 def get_func_dict():
-    return {'linearDCDF':lambda x:np.sum(x)}
+    return {'linearDCDF':lambda s,r,b:np.sum(r-s)*b}
+
+def measure_single_subject(subject: str,
+                   reference: CumfreqResult,
+                   func_dict: Dict[str,Callable[[np.ndarray,np.ndarray,np.float32],np.float32]],
+                   indv_mask: Optional[str]=None,
+                   group_mask_indices: Optional[np.ndarray]=None,
+                   filter: Optional[Callable[[np.ndarray],np.ndarray]]=None):
+    # Get our datapoints, using the group-level mask if specified, otherwise individual masks
+    if group_mask_indices is not None:
+        subject_data = get_datapoints(subject,filter=filter)[group_mask_indices]
+    else:
+        subject_data = get_datapoints(subject,
+                mask_filename=indv_mask,
+                filter=filter
+        )
+
+    # Get the subject_cdf and compute the difference from the reference CDF
+    subject_cdf = get_subject_cdf(subject_data,reference)
+
+    #cdf_diff = reference.cumcount - subject_cdf.cumcount
+
+    sub = subject_cdf.cumcount
+    ref = reference.cumcount
+    bs = reference.binsize
+    # Calculate each of the requested results and append to the dataframe
+    subj_results = {f: func_dict[f](sub,ref,bs) for f in func_dict.keys()}
+    return (subject,subj_results)
 
 def measure_subjects(subjects_list: List[str], 
-                     reference: stats.CumfreqResult, 
-                     func_dict: Dict[str,Callable[[np.ndarray],np.float32]],
+                     reference: CumfreqResult, 
+                     func_dict: Dict[str,Callable[[np.ndarray,np.ndarray,np.float32],np.float32]],
                      indv_mask_list: Optional[List[str]]=None,
                      group_mask_filename: Optional[str]=None,
                      filter: Optional[Callable[[np.ndarray],np.ndarray]]=None
@@ -31,7 +59,7 @@ def measure_subjects(subjects_list: List[str],
     """
 
     # Prepare the dataframe we will return
-    results = pd.Dataframe(data=None, columns=['nifti']+list(func_dict.keys())).set_index('nifti')
+    results = pd.DataFrame(data=None, columns=['nifti']+list(func_dict.keys())).set_index('nifti')
 
     # If we are using one mask for everybody, prepare it now
     if group_mask_filename is not None:
@@ -41,20 +69,15 @@ def measure_subjects(subjects_list: List[str],
     for i in range(0,len(subjects_list)):
         subject = subjects_list[i]
 
-        # Get our datapoints, using the group-level mask if specified, otherwise individual masks
-        if group_mask_filename is not None:
-            subject_data = get_datapoints(subject,filter=filter)[mask_indices]
-        else:
-            mask_file = indv_mask_list[i] if indv_mask_list is not None else None
-            subject_data = get_datapoints(subject,mask_file,filter=filter)
 
-        # Get the subject_cdf and compute the difference from the reference CDF
-        subject_cdf = get_subject_cdf(subject_data,reference)
-        cdf_diff = reference.cumcount - subject.cumcount
-
-        # Calculate each of the requested results and append to the dataframe
-        subj_results = {f: func_dict[f](cdf_diff) for f in func_dict.keys()}
-        results.append(pd.Series(subj_results, name=subject))
+        _,subj_results = measure_single_subject(subject=subject,
+                reference=reference,
+                func_dict=func_dict,
+                indv_mask=indv_mask_list[i] if indv_mask_list is not None else None,
+                group_mask_indices=mask_indices if group_mask_filename is not None else None,
+                filter=filter
+        )
+        results = results.append(pd.Series(subj_results, name=subject))
     
     return results
 
@@ -63,7 +86,7 @@ def print_measurements(mdf: pd.DataFrame):
     This function will print out the results of `measure.measure_subjects`.
     :param mdf: pd.DataFrame returned from `measure.measure_subjects`
     """
-    print(','.join(list(mdf.keys())))
+    print(','.join(['nifti']+list(mdf.keys())))
     for i in range(0,len(mdf)):
-        print(','.join([mdf[k][i] for k in mdf.keys()]))
+        print(','.join([mdf.index[i]]+[str(mdf[k][i]) for k in mdf.keys()]))
 

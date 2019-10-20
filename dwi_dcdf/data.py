@@ -5,6 +5,7 @@ import pickle
 import nibabel as nib
 import numpy as np
 import scipy.stats as stats
+from scipy.stats.stats import CumfreqResult
 
 def get_datapoints(
         input_filename:str,
@@ -39,7 +40,7 @@ def get_reference_cdf(
         indv_mask_list: Optional[List[str]]=None,
         group_mask_filename: Optional[str]=None,
         filter: Optional[Callable[[np.ndarray],np.ndarray]]=None
-    )->stats.CumfreqResult:
+    )->CumfreqResult:
     """
     This function will return a CDF to be used as a reference based on the
     provided images.
@@ -65,17 +66,17 @@ def get_reference_cdf(
         img_pairs = zip(reference_list, indv_mask_list)
         pooled_points = np.concatenate([get_datapoints(r,m) for r,m in img_pairs])
     else:
-        pooled_points = np.concatenate([get_datapoints(r,m) for r in reference_list])
+        pooled_points = np.concatenate([get_datapoints(r) for r in reference_list])
 
     if filter is not None:
         pooled_points = filter(pooled_points)
 
-    return stats.cumfeq(pooled_points,
+    return stats.cumfreq(pooled_points,
                         numbins=numbins,
                         weights=np.repeat(1/len(pooled_points),len(pooled_points))
                         )
 
-def save_reference(reference: stats.CumfreqResult ,filename: str):
+def save_reference(reference: CumfreqResult ,filename: str):
     """
     Save the reference using pickle. If available, protocol 4 will be used.
     :param reference: CumfreqResult to be saved.
@@ -84,7 +85,7 @@ def save_reference(reference: stats.CumfreqResult ,filename: str):
     with open(filename,'wb') as fh:
         pickle.dump(reference,fh,protocol=min(4,pickle.HIGHEST_PROTOCOL))
 
-def load_reference(filename) -> stats.CumfreqResult:
+def load_reference(filename) -> CumfreqResult:
     """
     Load and retrun a pickled reference
     :param filename: path to the pickled CumfreqResult which should be loaded.
@@ -94,7 +95,7 @@ def load_reference(filename) -> stats.CumfreqResult:
     return None
 
 def get_subject_cdf(subject_array: np.ndarray, 
-        reference_cdf: stats.CumfreqResult) -> stats.CumfreqResult:
+        reference_cdf: CumfreqResult) -> CumfreqResult:
     """
     Calculate the individual subject's cdf with respect to the reference CDF.
     :param subject_array: numpy array of datapoints from `get_datapoints`
@@ -107,7 +108,7 @@ def get_subject_cdf(subject_array: np.ndarray,
 
     subject_cdf = stats.cumfreq(subject_array,
                                 numbins=numbins,
-                                defautlreallimits=(lowerlimit,upperlimit),
+                                defaultreallimits=(lowerlimit,upperlimit),
                                 weights=np.repeat(1/len(subject_array),len(subject_array))
                                 )
     return subject_cdf
