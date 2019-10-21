@@ -1,4 +1,4 @@
-from typing import Any, Optional, Callable, List, Dict
+from typing import Any, Optional, Callable, List, Dict, Tuple
 import os
 from data import get_subject_cdf, get_datapoints
 import numpy as np
@@ -15,7 +15,23 @@ def measure_single_subject(subject: str,
                    func_dict: Dict[str,Callable[[np.ndarray,np.ndarray,np.float32],np.float32]],
                    indv_mask: Optional[str]=None,
                    group_mask_indices: Optional[np.ndarray]=None,
-                   filter: Optional[Callable[[np.ndarray],np.ndarray]]=None):
+                   filter: Optional[Callable[[np.ndarray],np.ndarray]]=None
+    ) -> Tuple[str,Dict[str,np.float32]]:
+    """
+    Function to apply provided measures to a single subject
+
+    :param subjects: Nifti file paths 
+    :param reference: CumfreqResult from `data.get_reference_cdf`
+    :param func_dict: Output of `measure.get_func_dict`.  A dictionary
+    of functions to be calculated over CDF differences.  Keys will be used as column names
+    in the return of this function
+    :param indv_mask: Mask to be applied to subject image
+    :param group_mask_filename: If not None, this should be a path to anifti file which will be
+    used as a mask for eac of the individual images.  If set, `indv_mask_list` will be ignored.
+    :param filter: Optional: function which takes in an np.ndarray and
+    returns an np.ndarray.  Can be used to apply a filter to the data 
+    (e.g thresholding)
+    """
     # Get our datapoints, using the group-level mask if specified, otherwise individual masks
     if group_mask_indices is not None:
         subject_data = get_datapoints(subject,filter=filter)[group_mask_indices]
@@ -45,6 +61,8 @@ def measure_subjects(subjects_list: List[str],
                      filter: Optional[Callable[[np.ndarray],np.ndarray]]=None
     ) -> pd.DataFrame:
     """
+    Wrapper around measure_single_subject to apply to each subject
+
     :param subjects_list: List of nifti file paths 
     :param reference: CumfreqResult from `data.get_reference_cdf`
     :param func_dict: Output of `measure.get_func_dict`.  A dictionary

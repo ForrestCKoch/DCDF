@@ -112,3 +112,24 @@ def get_subject_cdf(subject_array: np.ndarray,
                                 weights=np.repeat(1/len(subject_array),len(subject_array))
                                 )
     return subject_cdf
+
+def get_subject_cdf2(subject_array: np.ndarray, 
+            numbins: int, 
+            lowerlimit: np.float32, 
+            binsize: int
+    ) -> CumfreqResult:
+    """
+    Calculate the individual subject's cdf with respect to the reference CDF.
+    :param subject_array: numpy array of datapoints from `get_datapoints`
+    :param numbins: len(Cumfreqresult.cumcount)
+    :param lowerlimit: CumfreqResult.lowerlimit
+    :param binsize: Cumfreqresult.binsize
+    """
+    upperlimit = lowerlimit + (binsize * numbins)
+
+    subject_cdf = stats.cumfreq(subject_array,
+                                numbins=numbins,
+                                defaultreallimits=(lowerlimit,upperlimit),
+                                weights=np.repeat(1/len(subject_array),len(subject_array))
+                                )
+    return subject_cdf
