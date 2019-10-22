@@ -65,8 +65,8 @@ def get_reference_cdf(
 
     if group_mask_filename is not None:
         group_mask = nib.load(group_mask_filename).get_fdata().flatten()
-        mask_indicies = np.where(group_mask != 0)
-        pooled_points = np.concatenate([get_datapoints(r,mask_indicies=mask_indicies) for r in reference_list])
+        mask_indices = np.where(group_mask != 0)
+        pooled_points = np.concatenate([get_datapoints(r,mask_indices=mask_indices) for r in reference_list])
     elif indv_mask_list is not None:
         img_pairs = zip(reference_list, indv_mask_list)
         pooled_points = np.concatenate([get_datapoints(r,mask_filename=m) for r,m in img_pairs])
