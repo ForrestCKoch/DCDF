@@ -6,6 +6,7 @@ import numpy as np
 
 from data import get_reference_cdf, save_reference, load_reference
 from measure import get_func_dict, measure_subjects, print_measurements
+from parallel import parallel_measure_subjects
 
 def main():
     parser = _build_parser() # Get our parser
@@ -29,14 +30,24 @@ def main():
         reference = load_reference(args.load)
 
     if args.evaluate is not None: # User wants to evaluate subjects against a reference
-        results = measure_subjects(
-                subjects_list=_get_list(args.evaluate,args.from_file),
-                reference=reference,
-                func_dict=get_func_dict(),
-                indv_mask_list=_get_list(args.evaluation_masks,args.from_file),
-                group_mask_filename=args.group_mask,
-                filter=filter
-        )
+        if args.parallel:
+            results = parallel_measure_subjects(
+                    subjects_list=_get_list(args.evaluate,args.from_file),
+                    reference=reference,
+                    func_dict=get_func_dict(),
+                    indv_mask_list=_get_list(args.evaluation_masks,args.from_file),
+                    group_mask_filename=args.group_mask,
+                    filter=filter
+            )
+        else:
+            results = measure_subjects(
+                    subjects_list=_get_list(args.evaluate,args.from_file),
+                    reference=reference,
+                    func_dict=get_func_dict(),
+                    indv_mask_list=_get_list(args.evaluation_masks,args.from_file),
+                    group_mask_filename=args.group_mask,
+                    filter=filter
+            )
         print_measurements(results)
 
 def _get_list(arg: List[str],from_file: bool) -> List[str]:
@@ -159,6 +170,13 @@ def _build_parser() -> argparse.ArgumentParser:
         type=str,
         default=None,
         help="Mask to be applied to all data.  Do not set if either --reference-masks, or --evaluation-masks are set"
+    )
+
+    parser.add_argument(
+        "-p",
+        "--parallel",
+        action='store_true',
+        help="Whether to perform evaluation using multiple processes"
     )
 
     return parser

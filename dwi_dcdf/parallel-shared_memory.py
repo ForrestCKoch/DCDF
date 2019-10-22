@@ -22,7 +22,7 @@ _shm_mask_name=None
 _shm_mask_shape=None
 _shm_mask_dtype=None
 
-def multiproc_measure_subjects(subjects_list: List[str],
+def parallel_measure_subjects(subjects_list: List[str],
                    reference: CumfreqResult,
                    func_dict: Dict[str,Callable[[np.ndarray,np.ndarray,np.float32],np.float32]],
                    indv_mask_list: Optional[List[str]]=None,
@@ -90,7 +90,7 @@ def multiproc_measure_subjects(subjects_list: List[str],
     shared_mask_mem.unlink()
     shared_ref_mem.unlink()
 
-    pass
+    return pd.DataFrame(data=results,index=subjects_list,columns=sorted(func_dict.keys()))
 
 def _worker_init(binsize: np.float32,
         lowerlimit: np.float32,
@@ -100,7 +100,7 @@ def _worker_init(binsize: np.float32,
         filter: Optional[Callable[[np.ndarray],np.ndarray]]=None
     ) -> None:
     """
-    Initialization function for multiproc workers calling `_mp_measure`.
+    Initialization function for parallel workers calling `_mp_measure`.
     :param binsize: `CumfreqResult.binsize`
     :param lowerlimit: `CumfreqResult.lowerlimit`.
     :param func_dict: Output of `measure.get_func_dict`.  A dictionary
