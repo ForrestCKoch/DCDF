@@ -22,5 +22,5 @@ setup(
     name='dcdf',
     packages=find_packages(),
     url='https://github.com/ForrestCKoch/DCDF',
-    version='0.1.3'
+    version='0.1.4'
 )
