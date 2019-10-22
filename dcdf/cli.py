@@ -22,7 +22,9 @@ def main():
             numbins=args.bins,
             indv_mask_list=_get_list(args.reference_masks,args.from_file),
             group_mask_filename=args.group_mask,
-            filter=filter
+            filter=filter,
+            lowerlimit=args.lower_limit,
+            upperlimit=args.upper_limit
         )
         if args.output is not None: # User wants to save the reference
             save_reference(reference,args.output)
