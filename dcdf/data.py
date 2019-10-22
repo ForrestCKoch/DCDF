@@ -10,6 +10,7 @@ from scipy.stats.stats import CumfreqResult
 def get_datapoints(
         input_filename:str,
         mask_filename: Optional[str]=None,
+        mask_indices: Optional[np.ndarray]=None,
         filter: Optional[Callable[[np.ndarray],np.ndarray]]=None
     )->np.ndarray:
     """
@@ -18,6 +19,8 @@ def get_datapoints(
 
     :param input_filename: filename of the nifti file to be loaded
     :param mask_filename: Optional: filename of mask to be applied to data
+    :param mask_indices: Optional & ignored if mask_filename is set.
+    Indices to extract from data array
     :param filter: Optional: function which takes in an np.ndarray and
     returns an np.ndarrray.  Can be used to apply a filter to the data
     (e.g thresholding)
@@ -28,6 +31,8 @@ def get_datapoints(
         mask_img = nib.load(mask_filename)
         mask_data = mask_img.get_fdata().flatten()
         img_data = img_data[mask_data!=0]
+    elif mask_indices is not None: 
+        img_data = img_data[mask_indices]
 
     if filter is not None:
         img_data = filter(img_data)
@@ -61,10 +66,10 @@ def get_reference_cdf(
     if group_mask_filename is not None:
         group_mask = nib.load(group_mask_filename).get_fdata().flatten()
         mask_indicies = np.where(group_mask != 0)
-        pooled_points = np.concatenate([get_datapoints(r)[mask_indicies] for r in reference_list])
+        pooled_points = np.concatenate([get_datapoints(r,mask_indicies=mask_indicies) for r in reference_list])
     elif indv_mask_list is not None:
         img_pairs = zip(reference_list, indv_mask_list)
-        pooled_points = np.concatenate([get_datapoints(r,m) for r,m in img_pairs])
+        pooled_points = np.concatenate([get_datapoints(r,mask_filename=m) for r,m in img_pairs])
     else:
         pooled_points = np.concatenate([get_datapoints(r) for r in reference_list])
 

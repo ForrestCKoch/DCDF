@@ -5,8 +5,7 @@ import numpy as np
 import pandas as pd
 import nibabel as nib
 
-from data import get_datapoints
-from data import get_subject_cdf2
+from dcdf.data import get_datapoints, get_subject_cdf2
 
 from scipy.stats.stats import CumfreqResult
 
@@ -104,7 +103,7 @@ def _mp_measure(subject: str,
     """
     # Get our datapoints, using the group-level mask if specified, otherwise individual masks
     if _shared_mask is not None:
-        subject_data = get_datapoints(subject,filter=_filter)[_shared_mask]
+        subject_data = get_datapoints(subject,mask_indices=_shared_mask,filter=_filter)
     else:
         subject_data = get_datapoints(subject,
                 mask_filename=indv_mask_filename,

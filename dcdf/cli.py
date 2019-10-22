@@ -4,9 +4,9 @@ from typing import Any, Optional, List
 
 import numpy as np
 
-from data import get_reference_cdf, save_reference, load_reference
-from measure import get_func_dict, measure_subjects, print_measurements
-from parallel import parallel_measure_subjects
+from dcdf.data import get_reference_cdf, save_reference, load_reference
+from dcdf.measure import get_func_dict, measure_subjects, print_measurements
+from dcdf.parallel import parallel_measure_subjects
 
 def main():
     parser = _build_parser() # Get our parser
@@ -37,7 +37,8 @@ def main():
                     func_dict=get_func_dict(),
                     indv_mask_list=_get_list(args.evaluation_masks,args.from_file),
                     group_mask_filename=args.group_mask,
-                    filter=filter
+                    filter=filter,
+                    n_procs=args.cores
             )
         else:
             results = measure_subjects(
@@ -177,6 +178,14 @@ def _build_parser() -> argparse.ArgumentParser:
         "--parallel",
         action='store_true',
         help="Whether to perform evaluation using multiple processes"
+    )
+
+    parser.add_argument(
+        "-c",
+        "--cores",
+        type=int,
+        default=None,
+        help="Number of cores to use.  Only used if '-p' is set. If None, defaults to number of available cores"
     )
 
     return parser

@@ -6,8 +6,7 @@ import numpy as np
 import pandas as pd
 import nibabel as nib
 
-from data import get_datapoints
-from data import get_subject_cdf2
+from dcdf.data import get_datapoints, get_subject_cdf2
 
 # man I hate having to use global variables ....
 # open to alternative suggestions ...
@@ -139,7 +138,7 @@ def _mp_measure(subject: str,
     if _shm_mask_name is not None:
         shm_mdx = shared_memory.SharedMemory(name=_shm_mask_name)
         midx = np.ndarray(_shm_mask_shape,dtype=_shm_mask_dtype,buffer=shm_mdx.buf) 
-        subject_data = get_datapoints(subject,filter=_filter)[midx]
+        subject_data = get_datapoints(subject,mask_indices=midx,filter=_filter)
     else:
         subject_data = get_datapoints(subject,
                 mask_filename=indv_mask_filename,

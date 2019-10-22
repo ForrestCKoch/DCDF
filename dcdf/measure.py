@@ -1,6 +1,6 @@
 from typing import Any, Optional, Callable, List, Dict, Tuple
 import os
-from data import get_subject_cdf, get_datapoints
+from dcdf.data import get_subject_cdf, get_datapoints
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
@@ -34,7 +34,10 @@ def measure_single_subject(subject: str,
     """
     # Get our datapoints, using the group-level mask if specified, otherwise individual masks
     if group_mask_indices is not None:
-        subject_data = get_datapoints(subject,filter=filter)[group_mask_indices]
+        subject_data = get_datapoints(subject,
+                mask_indices=group_mask_indices,
+                filter=filter
+        )
     else:
         subject_data = get_datapoints(subject,
                 mask_filename=indv_mask,
