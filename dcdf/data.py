@@ -134,6 +134,21 @@ def get_reference_cdf(
                         weights=np.repeat(1/len(pooled_points),len(pooled_points))
                         )
 
+def get_null_reference_cdf(
+        lowerlimit: np.float32,
+        upperlimit: np.float32,
+        numbins: int=1000,
+    )->CumfreqResult:
+    """
+    This function will return a CDF to be used as a null reference.
+    
+    :param lowerlimit: lower bound for the CDF
+    :param upperlimit: upperbound for the CDF
+    :param numbins: How many bins should be used for the reference
+    """
+    return stats.cumfreq([],numbins=numbins,defaultreallimits=(lowerlimit,upperlimit))
+                        
+
 def save_reference(reference: CumfreqResult ,filename: str):
     """
     Save the reference using pickle. If available, protocol 4 will be used.

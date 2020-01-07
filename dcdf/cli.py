@@ -4,7 +4,7 @@ from typing import Any, Optional, List
 
 import numpy as np
 
-from dcdf.data import get_reference_cdf, save_reference, load_reference
+from dcdf.data import get_reference_cdf, save_reference, load_reference, get_null_reference_cdf
 from dcdf.measure import get_func_dict, measure_subjects, print_measurements
 from dcdf.parallel import parallel_measure_subjects
 
@@ -28,8 +28,15 @@ def main():
         )
         if args.output is not None: # User wants to save the reference
             save_reference(reference,args.output)
-    else:
+    elif args.load is not None:
         reference = load_reference(args.load)
+    else:
+        reference = get_null_reference_cdf(
+            lowerlimit=args.lower_limit,
+            upperlimit=args.upper_limit
+            numbins=args.bins,
+        )
+                                    
 
     if args.evaluate is not None: # User wants to evaluate subjects against a reference
         if args.parallel:
@@ -190,6 +197,15 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Number of cores to use.  Only used if '-p' is set. If None, defaults to number of available cores"
     )
 
+    """ Just have this be the implicit default
+    parser.add_argument(
+        "-N",
+        "--no-reference",
+        action='store_true',
+        help='Specify this option to calculate without reference'
+    )
+    """
+
     return parser
 
 def _lc(filename: str) -> int:
@@ -214,9 +230,11 @@ def _validate_args(parser) -> bool:
         if not _check_nifti(args.evaluate,args.from_file):
             parser.error('Invalid file list passed to --evaluate')
             return False
-        if (args.build is None) == (args.load is None):
-            parser.error('Please specify exactly one of {--build, --load}')
+        """ Removed so that program just defaults to using no reference
+        if (args.build is None) == (args.load is None) and (not args.no_reference):
+            parser.error('Please specify exactly one of {--build, --load, --no-reference}')
             return False
+        """
 
     if args.build is not None:
         if not _check_nifti(args.build,args.from_file):

@@ -8,7 +8,8 @@ from scipy.stats.stats import CumfreqResult
 import nibabel as nib
 
 def get_func_dict():
-    return {'linearDCDF':lambda s,r,b:np.sum(r-s)*b}
+    return {'linearDCDF':lambda s,r,b:np.sum(r-s)*b,
+            'norefDCDF': lambda s,r,b:np.sum(s)*b}
 
 def measure_single_subject(subject: str,
                    reference: CumfreqResult,
