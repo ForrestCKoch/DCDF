@@ -33,8 +33,8 @@ def main():
     else:
         reference = get_null_reference_cdf(
             lowerlimit=args.lower_limit,
-            upperlimit=args.upper_limit
-            numbins=args.bins,
+            upperlimit=args.upper_limit,
+            numbins=args.bins
         )
                                     
 
