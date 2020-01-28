@@ -43,7 +43,7 @@ def main():
             results = parallel_measure_subjects(
                     subjects_list=_get_list(args.evaluate,args.from_file),
                     reference=reference,
-                    func_dict=get_func_dict(),
+                    func_dict=get_func_dict(args.equations),
                     indv_mask_list=_get_list(args.evaluation_masks,args.from_file),
                     group_mask_filename=args.group_mask,
                     filter=filter,
@@ -53,7 +53,7 @@ def main():
             results = measure_subjects(
                     subjects_list=_get_list(args.evaluate,args.from_file),
                     reference=reference,
-                    func_dict=get_func_dict(),
+                    func_dict=get_func_dict(args.equations),
                     indv_mask_list=_get_list(args.evaluation_masks,args.from_file),
                     group_mask_filename=args.group_mask,
                     filter=filter
@@ -197,6 +197,14 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Number of cores to use.  Only used if '-p' is set. If None, defaults to number of available cores"
     )
 
+    parser.add_argument(
+        "-q",
+        "--equations",
+        type=str,
+        default=None,
+        help="Path to file declaring expressions which should be evaluated."
+    )
+
     """ Just have this be the implicit default
     parser.add_argument(
         "-N",
@@ -221,6 +229,13 @@ def _validate_args(parser) -> bool:
     Sanity checking on the inputs.  Returns False if any checks fail.
     """
     args = parser.parse_args()
+
+    if (args.equations is None):
+        parser.error('Please specify equations file ...')
+        return False
+    elif not os.path.exists(args.equations):
+        parser.error('Path does not exist: {}'.format(args.equations))
+
 
     if (args.build is None) and (args.evaluate is None):
         parser.error('Please specify at least one of {--build, --evaluate}')

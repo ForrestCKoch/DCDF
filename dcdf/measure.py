@@ -7,33 +7,14 @@ import scipy.stats as stats
 from scipy.stats.stats import CumfreqResult
 import nibabel as nib
 
-def get_func_dict():
-    return {'tm':lambda s,r,b:np.sum(s)*b,
-            'sq': lambda s,r,b:np.sum(np.power((r-s),2))*b,
-            'expe0': lambda s,r,b:np.sum(np.exp(1*(r-s)))*b,
-            'expe1': lambda s,r,b:np.sum(np.exp(10*(r-s)))*b,
-            'expe2': lambda s,r,b:np.sum(np.exp(100*(r-s)))*b,
-            'expe3': lambda s,r,b:np.sum(np.exp(1000*(r-s)))*b,
-            'expe4': lambda s,r,b:np.sum(np.exp(10000*(r-s)))*b,
-            'expe5': lambda s,r,b:np.sum(np.exp(100000*(r-s)))*b,
-            'expem0': lambda s,r,b:np.sum(np.exp(-1*(r-s)))*b,
-            'expem1': lambda s,r,b:np.sum(np.exp(-10*(r-s)))*b,
-            'expem2': lambda s,r,b:np.sum(np.exp(-100*(r-s)))*b,
-            'expem3': lambda s,r,b:np.sum(np.exp(-1000*(r-s)))*b,
-            'expem4': lambda s,r,b:np.sum(np.exp(-10000*(r-s)))*b,
-            'expem5': lambda s,r,b:np.sum(np.exp(-100000*(r-s)))*b,
-            'nr_expe0': lambda s,r,b:np.sum(np.exp(1*(-s)))*b,
-            'nr_expe1': lambda s,r,b:np.sum(np.exp(10*(-s)))*b,
-            'nr_expe2': lambda s,r,b:np.sum(np.exp(100*(-s)))*b,
-            'nr_expe3': lambda s,r,b:np.sum(np.exp(1000*(-s)))*b,
-            'nr_expe4': lambda s,r,b:np.sum(np.exp(10000*(-s)))*b,
-            'nr_expe5': lambda s,r,b:np.sum(np.exp(100000*(-s)))*b,
-            'nr_expem0': lambda s,r,b:np.sum(np.exp(-1*(-s)))*b,
-            'nr_expem1': lambda s,r,b:np.sum(np.exp(-10*(-s)))*b,
-            'nr_expem2': lambda s,r,b:np.sum(np.exp(-100*(-s)))*b,
-            'nr_expem3': lambda s,r,b:np.sum(np.exp(-1000*(-s)))*b,
-            'nr_expem4': lambda s,r,b:np.sum(np.exp(-10000*(-s)))*b,
-            'nr_expem5': lambda s,r,b:np.sum(np.exp(-100000*(-s)))*b}
+def get_func_dict(func_file):
+
+    d = {}
+    with open(func_file,'r') as fh:
+        for line in fh:
+            x = line.rstrip('\n').split(':')
+            d[x[0]]=x[1]   
+    return d
 
 def measure_single_subject(subject: str,
                    reference: CumfreqResult,
@@ -78,7 +59,16 @@ def measure_single_subject(subject: str,
     ref = reference.cumcount
     bs = reference.binsize
     # Calculate each of the requested results and append to the dataframe
-    subj_results = {f: func_dict[f](sub,ref,bs) for f in func_dict.keys()}
+    #subj_results = {f: func_dict[f](sub,ref,bs) for f in func_dict.keys()}
+    #subj_results = {f: (lambda s,r,b:eval(fun)
+    # Decalre our subject's results dictionary
+    subj_results = {}
+    for f in func_dict.keys(): 
+        # create our lambda function from the string
+        # only allowing access to numpy, s, r, & b
+        func = lambda s,r,b:eval(func_dict[f],{'np':np},{'s':s,'r':r,'b':b}) 
+        subj_results[f] = func(sub,ref,bs)
+
     return (subject,subj_results)
 
 def measure_subjects(subjects_list: List[str], 
