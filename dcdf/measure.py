@@ -9,7 +9,8 @@ import nibabel as nib
 
 def get_func_dict():
     return {'linearDCDF':lambda s,r,b:np.sum(r-s)*b,
-            'norefDCDF': lambda s,r,b:np.sum(s)*b}
+            'norefDCDF': lambda s,r,b:np.sum(s)*b,
+            'cndExp':lambda s,r,b:np.sum(s[int(len(s)/2):])*b}
 
 def measure_single_subject(subject: str,
                    reference: CumfreqResult,
