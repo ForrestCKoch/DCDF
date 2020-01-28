@@ -118,4 +118,12 @@ def _mp_measure(subject: str,
 
     sub = subject_cdf.cumcount
     # Calculate each of the requested results and append to the dataframe
-    return [_func_dict[f](sub,ref,_binsize) for f in sorted(_func_dict.keys())]
+
+    subj_results = []
+    for f in sorted(_func_dict.keys()): 
+        # create our lambda function from the string
+        # only allowing access to numpy, s, r, & b
+        func = lambda s,r,b:eval(_func_dict[f],{'np':np},{'s':s,'r':r,'b':b}) 
+        subj_results.append(func(sub,ref,_binsize))
+
+    return subj_results
