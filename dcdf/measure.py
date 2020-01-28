@@ -7,10 +7,14 @@ import scipy.stats as stats
 from scipy.stats.stats import CumfreqResult
 import nibabel as nib
 
-def get_func_dict():
-    return {'linearDCDF':lambda s,r,b:np.sum(r-s)*b,
-            'norefDCDF': lambda s,r,b:np.sum(s)*b,
-            'cndExp':lambda s,r,b:np.sum(s[int(len(s)/2):])*b}
+def get_func_dict(func_file):
+
+    d = {}
+    with open(func_file,'r') as fh:
+        for line in fh:
+            x = line.rstrip('\n').split(':')
+            d[x[0]]=x[1]   
+    return d
 
 def measure_single_subject(subject: str,
                    reference: CumfreqResult,
@@ -55,7 +59,16 @@ def measure_single_subject(subject: str,
     ref = reference.cumcount
     bs = reference.binsize
     # Calculate each of the requested results and append to the dataframe
-    subj_results = {f: func_dict[f](sub,ref,bs) for f in func_dict.keys()}
+    #subj_results = {f: func_dict[f](sub,ref,bs) for f in func_dict.keys()}
+    #subj_results = {f: (lambda s,r,b:eval(fun)
+    # Decalre our subject's results dictionary
+    subj_results = {}
+    for f in func_dict.keys(): 
+        # create our lambda function from the string
+        # only allowing access to numpy, s, r, & b
+        func = lambda s,r,b:eval(func_dict[f],{'np':np},{'s':s,'r':r,'b':b}) 
+        subj_results[f] = func(sub,ref,bs)
+
     return (subject,subj_results)
 
 def measure_subjects(subjects_list: List[str], 
