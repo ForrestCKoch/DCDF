@@ -8,8 +8,32 @@ from scipy.stats.stats import CumfreqResult
 import nibabel as nib
 
 def get_func_dict():
-    return {'linearDCDF':lambda s,r,b:np.sum(r-s)*b,
-            'norefDCDF': lambda s,r,b:np.sum(s)*b}
+    return {'tm':lambda s,r,b:np.sum(s)*b,
+            'sq': lambda s,r,b:np.sum(np.power((r-s),2))*b,
+            'expe0': lambda s,r,b:np.sum(np.exp(1*(r-s)))*b,
+            'expe1': lambda s,r,b:np.sum(np.exp(10*(r-s)))*b,
+            'expe2': lambda s,r,b:np.sum(np.exp(100*(r-s)))*b,
+            'expe3': lambda s,r,b:np.sum(np.exp(1000*(r-s)))*b,
+            'expe4': lambda s,r,b:np.sum(np.exp(10000*(r-s)))*b,
+            'expe5': lambda s,r,b:np.sum(np.exp(100000*(r-s)))*b,
+            'expem0': lambda s,r,b:np.sum(np.exp(-1*(r-s)))*b,
+            'expem1': lambda s,r,b:np.sum(np.exp(-10*(r-s)))*b,
+            'expem2': lambda s,r,b:np.sum(np.exp(-100*(r-s)))*b,
+            'expem3': lambda s,r,b:np.sum(np.exp(-1000*(r-s)))*b,
+            'expem4': lambda s,r,b:np.sum(np.exp(-10000*(r-s)))*b,
+            'expem5': lambda s,r,b:np.sum(np.exp(-100000*(r-s)))*b,
+            'nr_expe0': lambda s,r,b:np.sum(np.exp(1*(-s)))*b,
+            'nr_expe1': lambda s,r,b:np.sum(np.exp(10*(-s)))*b,
+            'nr_expe2': lambda s,r,b:np.sum(np.exp(100*(-s)))*b,
+            'nr_expe3': lambda s,r,b:np.sum(np.exp(1000*(-s)))*b,
+            'nr_expe4': lambda s,r,b:np.sum(np.exp(10000*(-s)))*b,
+            'nr_expe5': lambda s,r,b:np.sum(np.exp(100000*(-s)))*b,
+            'nr_expem0': lambda s,r,b:np.sum(np.exp(-1*(-s)))*b,
+            'nr_expem1': lambda s,r,b:np.sum(np.exp(-10*(-s)))*b,
+            'nr_expem2': lambda s,r,b:np.sum(np.exp(-100*(-s)))*b,
+            'nr_expem3': lambda s,r,b:np.sum(np.exp(-1000*(-s)))*b,
+            'nr_expem4': lambda s,r,b:np.sum(np.exp(-10000*(-s)))*b,
+            'nr_expem5': lambda s,r,b:np.sum(np.exp(-100000*(-s)))*b}
 
 def measure_single_subject(subject: str,
                    reference: CumfreqResult,
