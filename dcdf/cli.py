@@ -23,8 +23,8 @@ def main():
             indv_mask_list=_get_list(args.reference_masks,args.from_file),
             group_mask_filename=args.group_mask,
             filter=filter,
-            lowerlimit=args.lower_limit,
-            upperlimit=args.upper_limit
+            lowerlimit=args.lower_limit if not args.quantile_filter else None,
+            upperlimit=args.upper_limit if not args.quantile_filter else None
         )
         if args.output is not None: # User wants to save the reference
             save_reference(reference,args.output)
@@ -32,8 +32,8 @@ def main():
         reference = load_reference(args.load)
     else:
         reference = get_null_reference_cdf(
-            lowerlimit=args.lower_limit,
-            upperlimit=args.upper_limit,
+            lowerlimit=args.lower_limit if not args.quantile_filter else None,
+            upperlimit=args.upper_limit if not args.quantile_filter else None,
             numbins=args.bins
         )
                                     
@@ -141,6 +141,28 @@ def _build_parser() -> argparse.ArgumentParser:
         action='store',
         default=None,
         help='enforce an upper bound on considered values [Note: This should be the same for both reference and evaluation calls]'
+    )
+    parser.add_argument(
+        "-Q",
+        "--quantile-filter",
+        action='store_true',
+        help="Apply a quantile filter instead of a bounds filter."
+    )
+    parser.add_argument(
+        "-M",
+        "--lower-quantile-limit",
+        type=float,
+        action='store',
+        default=0.0,
+        help='Lower quantile bound.'
+    )
+    parser.add_argument(
+        "-S",
+        "--upper-quantile-limit",
+        type=float,
+        action='store',
+        default=1.0,
+        help='Upper quantile bound.'
     )
     parser.add_argument(
         "-B",
@@ -286,6 +308,19 @@ def _validate_args(parser) -> bool:
             parser.error('Number of reference masks does not match number of reference scans!')
         elif len(args.evaluate) != len(args.evaluation_masks):
             parser.error('Number of reference masks does not match number of reference scans!')
+
+    if args.quantile_filter:
+        if args.lower_limit and args.lower_limit < 0:
+            parser.error('Invalid limit range.')
+        elif args.lower_limit and args.lower_limit > 1:
+            parser.error('Invalid limit range.')
+        elif args.upper_limit and args.upper_limit < 0:
+            parser.error('Invalid limit range.')
+        elif args.upper_limit and args.upper_limit > 1:
+            parser.error('Invalid limit range.')
+        elif args.lower_limit and args.upper_limit and args.upper_limit < args.lower_limit:
+            parser.error('Invalid limit range.')
+
     return True
 
 def _check_nifti(file_list: List[str], from_file: Optional[bool]=False) -> bool:
@@ -313,16 +348,30 @@ def _get_bounds_filter(args):
     if (args.upper_limit is None) and (args.lower_limit is None):
         return None
 
-    if args.lower_limit is None:
-        lb = -np.inf
-    else:
-        lb = args.lower_limit
-    if args.upper_limit is None:
-        ub = np.inf
-    else:
-        ub = args.upper_limit
+    if args.quantile_filter:
+        if args.lower_quantile_limit is None:
+            lb = 0.0
+        else:
+            lb = args.lower_quantile_limit
+        if args.upper_limit is None:
+            ub = 1.0
+        else:
+            ub = args.upper_quantile_limit
 
-    return lambda x: x[(x>lb)&(x<ub)]
+        return lambda x: x[(x>np.quantile(x,lb))&(x<np.quantile(x,ub))]
+        
+
+    else:
+        if args.lower_limit is None:
+            lb = -np.inf
+        else:
+            lb = args.lower_limit
+        if args.upper_limit is None:
+            ub = np.inf
+        else:
+            ub = args.upper_limit
+
+        return lambda x: x[(x>lb)&(x<ub)]
 
 if __name__ == '__main__':
     main()

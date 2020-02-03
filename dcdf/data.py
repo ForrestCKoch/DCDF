@@ -16,7 +16,7 @@ def get_datapoints(
     """
     This function reads a nifti file and returns a flat (1D) array of
     the image.  Various options can be used to filter the array
-
+*self.binsize)+self.lowerlimit
     :param input_filename: filename of the nifti file to be loaded
     :param mask_filename: Optional: filename of mask to be applied to data
     :param mask_indices: Optional & ignored if mask_filename is set.
@@ -38,6 +38,16 @@ def get_datapoints(
         img_data = filter(img_data)
 
     return img_data
+
+class ModifiedECDF(object):
+    def __init__(self,ecdf:CumfreqResult):
+        self.cumcount = ecdf.cumcount
+        self.lowerlimit = ecdf.lowerlimit
+        self.binsize = ecdf.binsize
+        self.extrapoints = ecdf.extrapoints
+        
+        self.inverse = (np.array([np.argmax(self.cumcount > i) for i in np.arange(0,1+(10/len(self.cumcount)),10/len(self.cumcount))])*self.binsize)+self.lowerlimit
+        self.inverse_binsize = 10/len(self.cumcount)
 
 def get_reference_cdf(
         reference_list: List[str],
@@ -113,7 +123,7 @@ def get_reference_cdf(
                     cumfreq.binsize,
                     cumfreq.extrapoints
         )
-        return cumfreq
+        return ModifiedECDF(cumfreq)
 
     else:
         if group_mask_filename is not None:
@@ -129,10 +139,10 @@ def get_reference_cdf(
         if filter is not None:
             pooled_points = filter(pooled_points)
 
-        return stats.cumfreq(pooled_points,
+        return ModifiedECDF(stats.cumfreq(pooled_points,
                         numbins=numbins,
                         weights=np.repeat(1/len(pooled_points),len(pooled_points))
-                        )
+                        ))
 
 def get_null_reference_cdf(
         lowerlimit: np.float32,
@@ -146,7 +156,7 @@ def get_null_reference_cdf(
     :param upperlimit: upperbound for the CDF
     :param numbins: How many bins should be used for the reference
     """
-    return stats.cumfreq([],numbins=numbins,defaultreallimits=(lowerlimit,upperlimit))
+    return ModifiedECDF(stats.cumfreq([],numbins=numbins,defaultreallimits=(lowerlimit,upperlimit)))
                         
 
 def save_reference(reference: CumfreqResult ,filename: str):
@@ -184,7 +194,7 @@ def get_subject_cdf(subject_array: np.ndarray,
                                 defaultreallimits=(lowerlimit,upperlimit),
                                 weights=np.repeat(1/len(subject_array),len(subject_array))
                                 )
-    return subject_cdf
+    return ModifiedECDF(subject_cdf)
 
 def get_subject_cdf2(subject_array: np.ndarray, 
             numbins: int, 
@@ -205,7 +215,7 @@ def get_subject_cdf2(subject_array: np.ndarray,
                                 defaultreallimits=(lowerlimit,upperlimit),
                                 weights=np.repeat(1/len(subject_array),len(subject_array))
                                 )
-    return subject_cdf
+    return ModifiedECDF(subject_cdf)
 
 def get_percentiles(data,nsamples):    
     sorted_data = np.sort(data)                                                   
