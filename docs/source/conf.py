@@ -10,9 +10,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../'))
 
 
 # -- Project information -----------------------------------------------------
@@ -56,3 +56,20 @@ html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 master_doc = 'index'
+
+ptions = {
+    'canonical_url': '',
+    'analytics_id': 'UA-XXXXXXX-1',  #  Provided by Google in your dashboard
+    'logo_only': False,
+    'display_version': True,
+    'prev_next_buttons_location': 'bottom',
+    'style_external_links': False,
+    'vcs_pageview_mode': '',
+    'style_nav_header_background': 'white',
+    # Toc options
+    'collapse_navigation': True,
+    'sticky_navigation': True,
+    'navigation_depth': 4,
+    'includehidden': True,
+    'titles_only': False
+}

@@ -15,6 +15,9 @@ Welcome to DCDF's documentation!
 Indices and tables
 ==================
 
+.. automodule:: dcdf
+    :members:
+
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
