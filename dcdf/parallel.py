@@ -12,10 +12,12 @@ from scipy.stats.stats import CumfreqResult
 # man I hate having to use global variables ....
 # open to alternative suggestions ...
 _binsize=None
+_inverse_binsize=None
 _lowerlimit=None
 _func_dict=None
 _filter=None
 _shared_ref=None
+_shared_ref_inverse=None
 _shared_mask=None
 
 def parallel_measure_subjects(subjects_list: List[str],
@@ -55,16 +57,18 @@ def parallel_measure_subjects(subjects_list: List[str],
         subjects_list,
         it.repeat(indv_mask_list) if indv_mask_list is None else indv_mask_list,
     )
-    pool = mp.Pool(n_procs,_worker_init,(reference.binsize,reference.lowerlimit,func_dict,shared_mask,reference.cumcount,filter))
+    pool = mp.Pool(n_procs,_worker_init,(reference.binsize,reference.inverse_binsize,reference.lowerlimit,func_dict,shared_mask,reference.cumcount,reference.inverse,filter))
     results = pool.starmap(_mp_measure,args)
 
     return pd.DataFrame(data=results,index=subjects_list,columns=sorted(func_dict.keys()))
 
 def _worker_init(binsize: np.float32,
+        inverse_binsize: np.float32,
         lowerlimit: np.float32,
         func_dict: Dict[str,Callable[[np.ndarray,np.ndarray,np.float32],np.float32]],
         shared_mask: Tuple[str,Tuple[int],np.dtype],
         shared_ref: Tuple[str,Tuple[int],np.dtype],
+        shared_ref_inverse: Tuple[str,Tuple[int],np.dtype],
         filter: Optional[Callable[[np.ndarray],np.ndarray]]=None
     ) -> None:
     """
@@ -77,16 +81,20 @@ def _worker_init(binsize: np.float32,
     :param filter: Optional: function which takes in an np.ndarray and
     """
     global _binsize
+    global _inverse_binsize
     global _lowerlimit
     global _func_dict
     global _filter
     global _shared_ref
+    global _shared_ref_inverse
     global _shared_mask
     _filter = filter
     _binsize = binsize
+    _inverse_binsize = inverse_binsize
     _lowerlimit = lowerlimit
     _func_dict = dict(func_dict)
     _shared_ref = np.copy(shared_ref)
+    _shared_ref_inverse = np.copy(shared_ref_inverse)
     _shared_mask = np.copy(shared_mask) if shared_mask is not None else None
     #_shared_ref = shared_ref
     #_shared_mask = shared_mask
@@ -112,18 +120,20 @@ def _mp_measure(subject: str,
 
     # Get our shared reference data
     ref = _shared_ref
+    refi = _shared_ref_inverse
 
     # Get the subject_cdf and compute the difference from the reference CDF
     subject_cdf = get_subject_cdf2(subject_data,len(ref),_lowerlimit,_binsize)
 
     sub = subject_cdf.cumcount
+    subi = subject_cdf.inverse
     # Calculate each of the requested results and append to the dataframe
 
     subj_results = []
     for f in sorted(_func_dict.keys()): 
         # create our lambda function from the string
         # only allowing access to numpy, s, r, & b
-        func = lambda s,r,b:eval(_func_dict[f],{'np':np},{'s':s,'r':r,'b':b}) 
-        subj_results.append(func(sub,ref,_binsize))
+        func = lambda s,r,b,si,ri,bi:eval(_func_dict[f],{'np':np,'s':s,'r':r,'b':b,'si':si,'ri':ri,'bi':bi}) 
+        subj_results.append(func(sub,ref,_binsize,subi,refi,_inverse_binsize))
 
     return subj_results

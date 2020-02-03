@@ -58,16 +58,20 @@ def measure_single_subject(subject: str,
     sub = subject_cdf.cumcount
     ref = reference.cumcount
     bs = reference.binsize
+    subi = subject_cdf.inverse
+    refi = reference.inverse
+    bsi = reference.inverse_binsize
     # Calculate each of the requested results and append to the dataframe
     #subj_results = {f: func_dict[f](sub,ref,bs) for f in func_dict.keys()}
     #subj_results = {f: (lambda s,r,b:eval(fun)
     # Decalre our subject's results dictionary
     subj_results = {}
     for f in func_dict.keys(): 
+        #print(f)
         # create our lambda function from the string
         # only allowing access to numpy, s, r, & b
-        func = lambda s,r,b:eval(func_dict[f],{'np':np},{'s':s,'r':r,'b':b}) 
-        subj_results[f] = func(sub,ref,bs)
+        func = lambda s,r,b,si,ri,bi:eval(func_dict[f],{'np':np,'s':s,'r':r,'b':b,'si':si,'ri':ri,'bi':bi}) 
+        subj_results[f] = func(sub,ref,bs,subi,refi,bsi)
 
     return (subject,subj_results)
 
