@@ -11,6 +11,7 @@ def get_datapoints(
         input_filename:str,
         mask_filename: Optional[str]=None,
         mask_indices: Optional[np.ndarray]=None,
+        ignore_zeros: Optional[bool]=True,
         filter: Optional[Callable[[np.ndarray],np.ndarray]]=None
     )->np.ndarray:
     """
@@ -33,6 +34,9 @@ def get_datapoints(
         img_data = img_data[mask_data!=0]
     elif mask_indices is not None: 
         img_data = img_data[mask_indices]
+
+    if ignore_zeros:
+        img_data = img_data[img_data != 0]
 
     if filter is not None:
         img_data = filter(img_data)

@@ -23,8 +23,8 @@ def main():
             indv_mask_list=_get_list(args.reference_masks,args.from_file),
             group_mask_filename=args.group_mask,
             filter=filter,
-            lowerlimit=args.lower_limit if not args.quantile_filter else None,
-            upperlimit=args.upper_limit if not args.quantile_filter else None
+            lowerlimit=args.lower_limit,
+            upperlimit=args.upper_limit
         )
         if args.output is not None: # User wants to save the reference
             save_reference(reference,args.output)
@@ -32,8 +32,8 @@ def main():
         reference = load_reference(args.load)
     else:
         reference = get_null_reference_cdf(
-            lowerlimit=args.lower_limit if not args.quantile_filter else None,
-            upperlimit=args.upper_limit if not args.quantile_filter else None,
+            lowerlimit=args.lower_limit,
+            upperlimit=args.upper_limit,
             numbins=args.bins
         )
                                     
@@ -353,7 +353,7 @@ def _get_bounds_filter(args):
             lb = 0.0
         else:
             lb = args.lower_quantile_limit
-        if args.upper_limit is None:
+        if args.upper_quantile_limit is None:
             ub = 1.0
         else:
             ub = args.upper_quantile_limit
