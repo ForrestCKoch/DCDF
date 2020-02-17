@@ -220,3 +220,14 @@ def get_subject_cdf2(subject_array: np.ndarray,
                                 weights=np.repeat(1/len(subject_array),len(subject_array))
                                 )
     return ModifiedECDF(subject_cdf)
+
+def get_percentiles(data,nsamples):    
+    sorted_data = np.sort(data)                                                   
+    x_at_frac = list()                                              
+    incr = len(data)/nsamples             
+    for i in range(0,nsamples):                                   
+        x_at_frac.append(sorted_data[np.int(incr*i)])    
+        # note that we add an extra sample to capture the end pointj
+        #print(incr*nsamples - len(data))    
+        x_at_frac.append(data[-1])
+    return np.array(x_at_frac)
