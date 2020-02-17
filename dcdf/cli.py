@@ -310,15 +310,15 @@ def _validate_args(parser) -> bool:
             parser.error('Number of reference masks does not match number of reference scans!')
 
     if args.quantile_filter:
-        if args.lower_limit and args.lower_limit < 0:
+        if args.lower_quantile_limit and args.lower_quantile_limit < 0:
             parser.error('Invalid limit range.')
-        elif args.lower_limit and args.lower_limit > 1:
+        elif args.lower_quantile_limit and args.lower_quantile_limit > 1:
             parser.error('Invalid limit range.')
-        elif args.upper_limit and args.upper_limit < 0:
+        elif args.upper_quantile_limit and args.upper_quantile_limit < 0:
             parser.error('Invalid limit range.')
-        elif args.upper_limit and args.upper_limit > 1:
+        elif args.upper_quantile_limit and args.upper_quantile_limit > 1:
             parser.error('Invalid limit range.')
-        elif args.lower_limit and args.upper_limit and args.upper_limit < args.lower_limit:
+        elif args.lower_quantile_limit and args.upper_quantile_limit and args.upper_quantile_limit < args.lower_quantile_limit:
             parser.error('Invalid limit range.')
 
     return True
