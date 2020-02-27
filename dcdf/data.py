@@ -13,17 +13,17 @@ def get_datapoints(
         mask_indices: Optional[np.ndarray]=None,
         filter: Optional[Callable[[np.ndarray],np.ndarray]]=None
     )->np.ndarray:
-    """
-    This function reads a nifti file and returns a flat (1D) array of
+    """This function reads a nifti file and returns a flat (1D) array of
     the image.  Various options can be used to filter the array
-*self.binsize)+self.lowerlimit
+    \*self.binsize)+self.lowerlimit
+
     :param input_filename: filename of the nifti file to be loaded
-    :param mask_filename: Optional: filename of mask to be applied to data
-    :param mask_indices: Optional & ignored if mask_filename is set.
-    Indices to extract from data array
-    :param filter: Optional: function which takes in an np.ndarray and
-    returns an np.ndarrray.  Can be used to apply a filter to the data
-    (e.g thresholding)
+    :param mask_filename: Optional\: filename of mask to be applied to data
+    :param mask_indices: Optional and ignored if mask_filename is set.
+        Indices to extract from data array
+    :param filter: Optional\: function which takes in an np.ndarray and
+        returns an np.ndarrray.  Can be used to apply a filter to the data
+        (e.g thresholding)
     """
     img = nib.load(input_filename)
     img_data = img.get_fdata().flatten()
