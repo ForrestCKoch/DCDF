@@ -70,15 +70,15 @@ def get_reference_cdf(
     :param reference_list: List of nifti files to be used for reference.
     :param numbins: How many bins should be used for the reference
     :param indv_mask_list: A list with the same length as `reference_list` of masks
-    to be used for each subject.
+        to be used for each subject.
     :param group_mask_filename: If not None, this should be a path to a nifti
-    file which should be used as a mask for each of the reference images. 
-    If set, `indv_mask_list` will be ignored.
+        file which should be used as a mask for each of the reference images. 
+        If set, `indv_mask_list` will be ignored.
     :param filter: A filtering function to be applied to the flattened array of nifti data.
     :param lowerlimit: lower bound for the CDF
     :param upperlimit: upperbound for the CDF
     :param _piecewise: memory efficient loading -- requires lowerlimit and upper limit to be set
-    behaviour is undefined otherwise.
+        behaviour is undefined otherwise.
     """
 
     if indv_mask_list is not None and len(indv_mask_list) != len(reference_list):

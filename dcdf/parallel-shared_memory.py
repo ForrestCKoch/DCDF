@@ -33,14 +33,14 @@ def parallel_measure_subjects(subjects_list: List[str],
     :param subjects_list: List of nifti file paths 
     :param reference: CumfreqResult from `data.get_reference_cdf`
     :param func_dict: Output of `measure.get_func_dict`.  A dictionary
-    of functions to be calculated over CDF differences.  Keys will be used as column names
-    in the return of this function
+        of functions to be calculated over CDF differences.  Keys will be used as column names
+        in the return of this function
     :param indv_mask_list: A list with the same length as `subjects_list` to be used for each subject.
     :param group_mask_filename: If not None, this should be a path to anifti file which will be
-    used as a mask for eac of the individual images.  If set, `indv_mask_list` will be ignored.
+        used as a mask for eac of the individual images.  If set, `indv_mask_list` will be ignored.
     :param filter: Optional: function which takes in an np.ndarray and
-    returns an np.ndarray.  Can be used to apply a filter to the data 
-    (e.g thresholding)
+        returns an np.ndarray.  Can be used to apply a filter to the data 
+        (e.g thresholding)
     :param n_procs: Number of processes to be started.  If none, then the number returned by `os.cpu_count()` is used
     """
     # Prepare the dataframe we will return
