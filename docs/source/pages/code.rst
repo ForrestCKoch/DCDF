@@ -3,7 +3,7 @@ Code Documentation
 
 CLI Module
 -----------
-Contains functionality for commandline interface.
+Contains functionality for commandline interface as well as argument validation.
 
 .. automodule:: dcdf.cli
     :members:
