@@ -27,7 +27,7 @@ We begin by considering two cumulative distribution functions (CDF).  Let FR den
 .. math::
 	\int_{l}^{u} \phi\big(F_{R}^{-1}(x) - F_{S}^{-1}(x)\big)dx
 
-Where  is a weighting function applied to the differences of the inverse CDFs.  Using the inverse CDF is preferred here, as the differences refer to the measure difference between corresponding quantiles.  That is, :math:`F_{R}^{-1}(0.5) - F_{S}^{-1}(0.5)` can be interpreted as the measured difference between the medians of the two distributions.  Furthermore, the use of inverse CDFs allows the integral to be defined cleanly in terms of quantiles as opposed to measure specific values.
+Where :math:`\phi` is a weighting function applied to the differences of the inverse CDFs.  Using the inverse CDF is preferred here, as the differences refer to the measure difference between corresponding quantiles.  That is, :math:`F_{R}^{-1}(0.5) - F_{S}^{-1}(0.5)` can be interpreted as the measured difference between the medians of the two distributions.  Furthermore, the use of inverse CDFs allows the integral to be defined cleanly in terms of quantiles as opposed to measure specific values.
 
 It is worth noting the case when :math:`\phi` is the identity function, that is :math:`\phi(x) = x`, we have
 
