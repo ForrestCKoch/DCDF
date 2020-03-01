@@ -72,6 +72,13 @@ def main():
 def _get_list(arg: List[str],from_file: bool) -> List[str]:
     """
     Helper function to handle the from_file = True/False usecases.
+
+    :param arg: either a list of nifti filenames, or a list with a single 
+        entry to a textfile (of filenames)
+    :param from_file: if False, arg is a list of filenames, if true, it is a 
+        list with a single entry to a textfile
+
+    :returns: List of filenames
     """
     if from_file and arg is not None:
         with open(arg[0]) as fh:
@@ -81,7 +88,9 @@ def _get_list(arg: List[str],from_file: bool) -> List[str]:
 
 def _build_parser() -> argparse.ArgumentParser:
     """
-    Returns returns an argument parser for the CLI
+    Build the parser for commandline arguments.
+
+    :returns: returns an argument parser for the CLI
     """
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -248,6 +257,13 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 def _lc(filename: str) -> int:
+    """
+    Helper function to count the number of lines in a file.
+
+    :param filename: name of the file to be read -- assumed to be plain text.
+
+    :returns: count of the number of lines in file 
+    """
     c = None
     with open(filename,'r') as fh:
         c = 0
@@ -255,9 +271,13 @@ def _lc(filename: str) -> int:
             c += 1
     return c
 
-def _validate_args(parser) -> bool:
+def _validate_args(parser: argparse.ArgumentParser) -> bool:
     """
     Sanity checking on the inputs.  Returns False if any checks fail.
+
+    :param parser: the parser returned from `_build_parser`
+
+    :returns: False if any of the arguments fail the sanity checks, else True.
     """
     args = parser.parse_args()
 
@@ -335,6 +355,13 @@ def _validate_args(parser) -> bool:
 def _check_nifti(file_list: List[str], from_file: Optional[bool]=False) -> bool:
     """
     Check whether each of the nifti files can be found. 
+
+    :param file_list: Should be one of: args.build, args.evaluate, 
+        arg.reference_masks, args.evaluation_masks, args.group_mask.
+        Where args are the parsed arguments.
+    :param from_file: Whether the arguments have been supplied as text files.
+
+    :returns: True if each of the nifti images can be found on disk.
     """
     # If we have been provided a file instead of explicit list use that
     if from_file:
@@ -353,6 +380,8 @@ def _get_bounds_filter(args):
     """
     If lower/upper bounds have been specified by the arguments, then provide a filter
     to be applied to the data.
+
+    :param args: The parsed arguments to this program.
     """
     if (args.upper_limit is None) and (args.lower_limit is None):
         return None
