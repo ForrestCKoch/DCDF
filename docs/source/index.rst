@@ -22,7 +22,7 @@ In neuroimaging, summary statistics are frequently used in an attempt to describ
 
 To date, no group has parameterized the distribution of DTI metrics (AD, FA, MD, & RD) within white matter, and so no non-trivial sufficient statistic is known for these distributions.  To bridge this gap, we have devised a general framework which allows differences between a target and a reference distribution to be weighted according to a user supplied function.  This allows custom statistics to be developed which may carry more information about independent variables of interest than traditional summary statistics are able to convey.
 
-We begin by considering two cumulative distribution functions (CDF).  Let FR denote the CDF of some reference distribution.  This could be the distribution of a group of healthy controls or an entire population.  Let FS denote the CDF of a single sample or subject.  Our framework proposes statistics which take the form:
+We begin by considering two cumulative distribution functions (CDF).  Let :math:`F_R` denote the CDF of some reference distribution.  This could be the distribution of a group of healthy controls or an entire population.  Let :math:`F_S` denote the CDF of a single sample or subject.  Our framework proposes statistics which take the form:
 
 .. math::
 	\int_{l}^{u} \phi\big(F_{R}^{-1}(x) - F_{S}^{-1}(x)\big)dx
