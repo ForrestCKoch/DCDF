@@ -9,6 +9,15 @@ from dcdf.measure import get_func_dict, measure_subjects, print_measurements
 from dcdf.parallel import parallel_measure_subjects
 
 def main():
+    """
+    This function is called on startup, and consists of the following steps:
+    1. Construct our parser, validate commandline arguments, and retrieve arguments.
+    2. Construct a filter based on any specified bounds.
+    3. Build reference as specified.
+    4. Write reference (if requested).
+    5. Evaluate samples (if requested) -- run in parallel if requested.
+    6. Print results.
+    """
     parser = _build_parser() # Get our parser
     _validate_args(parser) # Validate our arguments
     args = parser.parse_args() # Parse arguments
