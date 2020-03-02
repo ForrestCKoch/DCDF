@@ -7,7 +7,16 @@ import scipy.stats as stats
 from scipy.stats.stats import CumfreqResult
 import nibabel as nib
 
-def get_func_dict(func_file):
+def get_func_dict(func_file: str) -> dict:
+    """
+    Reads a textfile which should be in the format:
+    [function name] : [function code]
+    where [function code] will later be executed using `eval`
+
+    :param func_file: name of the textfile containing the equations
+
+    :returns: a dictionary of [function name] and [function code] pairs
+    """
 
     d = {}
     with open(func_file,'r') as fh:
@@ -29,14 +38,19 @@ def measure_single_subject(subject: str,
     :param subjects: Nifti file paths 
     :param reference: CumfreqResult from `data.get_reference_cdf`
     :param func_dict: Output of `measure.get_func_dict`.  A dictionary
-        of functions to be calculated over CDF differences.  Keys will be used as column names
-        in the return of this function
+        of functions to be calculated over CDF differences.  Keys will be used 
+        as column names in the return of this function
     :param indv_mask: Mask to be applied to subject image
-    :param group_mask_filename: If not None, this should be a path to anifti file which will be
-        used as a mask for eac of the individual images.  If set, `indv_mask_list` will be ignored.
+    :param group_mask_filename: If not None, this should be a path to a nifti 
+        file which will be used as a mask for eac of the individual images.  
+        If set, `indv_mask_list` will be ignored.
     :param filter: Optional: function which takes in an np.ndarray and
         returns an np.ndarray.  Can be used to apply a filter to the data 
         (e.g thresholding)
+
+    :returns: a Tuple with first element being the nifti file path, and the
+        second element being a dictionary of results with keys being function 
+        names
     """
     # Get our datapoints, using the group-level mask if specified, otherwise individual masks
     if group_mask_indices is not None:
@@ -96,6 +110,8 @@ def measure_subjects(subjects_list: List[str],
     :param filter: Optional: function which takes in an np.ndarray and
         returns an np.ndarray.  Can be used to apply a filter to the data 
         (e.g thresholding)
+
+    :returns: pandas.DataFrame containing all of the results.
     """
 
     # Prepare the dataframe we will return
@@ -124,6 +140,7 @@ def measure_subjects(subjects_list: List[str],
 def print_measurements(mdf: pd.DataFrame):
     """
     This function will print out the results of `measure.measure_subjects`.
+
     :param mdf: pd.DataFrame returned from `measure.measure_subjects`
     """
     print(','.join(['nifti']+list(mdf.keys())))
