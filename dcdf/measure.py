@@ -21,7 +21,8 @@ def measure_single_subject(subject: str,
                    func_dict: Dict[str,Callable[[np.ndarray,np.ndarray,np.float32],np.float32]],
                    indv_mask: Optional[str]=None,
                    group_mask_indices: Optional[np.ndarray]=None,
-                   filter: Optional[Callable[[np.ndarray],np.ndarray]]=None
+                   filter: Optional[Callable[[np.ndarray],np.ndarray]]=None,
+                   _print_inverse: Optional[bool]=False
     ) -> Tuple[str,Dict[str,np.float32]]:
     """
     Function to apply provided measures to a single subject
@@ -65,15 +66,21 @@ def measure_single_subject(subject: str,
     #subj_results = {f: func_dict[f](sub,ref,bs) for f in func_dict.keys()}
     #subj_results = {f: (lambda s,r,b:eval(fun)
     # Decalre our subject's results dictionary
-    subj_results = {}
-    for f in func_dict.keys(): 
-        #print(f)
-        # create our lambda function from the string
-        # only allowing access to numpy, s, r, & b
-        func = lambda s,r,b,si,ri,bi:eval(func_dict[f],{'np':np,'s':s,'r':r,'b':b,'si':si,'ri':ri,'bi':bi}) 
-        subj_results[f] = func(sub,ref,bs,subi,refi,bsi)
 
-    return (subject,subj_results)
+    if _print_inverse:
+        print(','.join([subject]+[str(x) for x in subi]))
+        return (subject,{})
+    else:
+        subj_results = {}
+        for f in func_dict.keys(): 
+            #print(f)
+            # create our lambda function from the string
+            # only allowing access to numpy, s, r, & b
+            func = lambda s,r,b,si,ri,bi:eval(func_dict[f],{'np':np,'s':s,'r':r,'b':b,'si':si,'ri':ri,'bi':bi}) 
+            subj_results[f] = func(sub,ref,bs,subi,refi,bsi)
+
+        return (subject,subj_results)
+
 
 def measure_subjects(subjects_list: List[str], 
                      reference: CumfreqResult, 
